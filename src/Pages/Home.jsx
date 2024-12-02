@@ -1,6 +1,7 @@
 // [src/Pages/Home.jsx](src/Pages/Home.jsx)
 import React from "react";
 import useMeta from "../useMeta";
+import CSRSection from "./CSRSection";
 
 const Home = () => {
   useMeta({
@@ -12,6 +13,7 @@ const Home = () => {
     <div>
       <h1>Home Page</h1>
       {/* Rest of your content */}
+      <CSRSection />
     </div>
   );
 };
