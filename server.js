@@ -49,9 +49,10 @@ app.get("/api", (req, res) => {
 const ssrRoutes = ["/"]; // Replace with your SSR routes
 
 // ? SSR Render - Rendering Middleware
+
 app.get("*", async (req, res, next) => {
-  // Handle favicon requests
-  console.log("req.path:", req.path);
+  console.log("Incoming request:", req.path);
+
   if (req.path === "/favicon.ico") {
     return res.sendFile(path.resolve("./public/vite.svg"));
   }
@@ -69,8 +70,12 @@ app.get("*", async (req, res, next) => {
         render = (await import("./dist/server/entry-server.js")).render;
       }
 
-      const rendered = await render({ path: req.originalUrl }, ssrManifest);
-      const html = template.replace(`<!--app-html-->`, rendered ?? "");
+      const { appHtml, meta } = await render({ path: req.originalUrl });
+
+      const html = template
+        .replace("<!--app-html-->", appHtml)
+        .replace("<!--page-title-->", meta.title || "")
+        .replace("<!--page-description-->", meta.description || "");
 
       res.status(200).setHeader("Content-Type", "text/html").end(html);
     } catch (error) {
@@ -78,7 +83,7 @@ app.get("*", async (req, res, next) => {
       next(error);
     }
   } else {
-    // CSR rendering for other routes
+    // CSR handling for other routes
     try {
       let template;
       if (!isProduction) {
@@ -87,6 +92,11 @@ app.get("*", async (req, res, next) => {
       } else {
         template = templateHtml;
       }
+
+      // Replace placeholders with defaults in CSR routes
+      template = template
+        .replace("<!--page-title-->", "My App")
+        .replace("<!--page-description-->", "Welcome to my app.");
 
       res.status(200).setHeader("Content-Type", "text/html").end(template);
     } catch (error) {

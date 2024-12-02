@@ -1,11 +1,19 @@
+// [src/entry-server.jsx](src/entry-server.jsx)
 import ReactDOMServer from "react-dom/server";
 import { StaticRouter } from "react-router-dom/server";
 import { Router } from "./router";
+import MetaContext from "./MetaContext";
 
 export const render = ({ path }) => {
-  return ReactDOMServer.renderToString(
+  const meta = {};
+
+  const appHtml = ReactDOMServer.renderToString(
     <StaticRouter location={path}>
-      <Router />
+      <MetaContext.Provider value={meta}>
+        <Router />
+      </MetaContext.Provider>
     </StaticRouter>
   );
+
+  return { appHtml, meta };
 };
